@@ -5,7 +5,7 @@ let student = require('./routes/students');
 let course = require('./routes/courses');
 let grade = require('./routes/grades');
 require('dotenv').config();
-
+//test
 let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 //mongoose.set('debug', true);
