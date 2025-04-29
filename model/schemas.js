@@ -23,9 +23,18 @@ let gradeSchema = Schema({
 });
 let Grade = mongoose.model('Grade', gradeSchema);
 
+let userSchema = Schema({
+    student: {type: mongoose.Schema.Types.ObjectId, ref: 'Student'},
+    username: String,
+    password: String,
+    role: String
+})
+let User = mongoose.model('User', userSchema);
+
 // Exports the modeles
 module.exports = {
     Student: student,
     Course: Course,
     Grade: Grade,
+    User: User,
 }
