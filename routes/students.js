@@ -1,5 +1,6 @@
-let { Student } = require("../model/schemas");
-
+let { Student,User } = require("../model/schemas");
+const mongoose=require('mongoose')
+const {ObjectId}=mongoose.Types
 function getAll(req, res) {
   Student.find()
     .then((students) => {
@@ -23,6 +24,31 @@ function getById(req, res) {
         .catch((err) => {
             res.status(500).send({ message: "Erreur serveur", error: err });
         });
+}
+
+async function getStudent(req, res) {
+  let query={}
+      const userconnected=req.user
+      if (userconnected) {
+            const user =await User.findOne({_id:new ObjectId(req.user.userId)}).select('student')
+            
+            if(user.student){
+              query= { _id: new ObjectId(user.student) }; 
+            }else{
+              return res.status(404).send({message: "Vous n'êtes pas un étudiant"})
+            }
+      }
+
+  Student.findById(query)
+      .then((student) => {
+          if (!student) {
+              return res.status(404).send({ message: "Étudiant non trouvé" });
+          }
+          res.send(student);
+      })
+      .catch((err) => {
+          res.status(500).send({ message: "Erreur serveur", error: err });
+      });
 }
 
 
@@ -81,4 +107,4 @@ function update(req, res) {
         });
 }
 
-module.exports = { getAll, create, update,deleteEtudiant ,getById};
+module.exports = { getAll, create, update,deleteEtudiant ,getById,getStudent};

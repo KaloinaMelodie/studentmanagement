@@ -6,6 +6,7 @@ let course = require('./routes/courses');
 let grade = require('./routes/grades');
 let user = require('./routes/users');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 let mongoose = require('mongoose');
@@ -26,7 +27,7 @@ mongoose.connect(uri, options)
         });
 
 
-// app.use(cors());
+app.use(cors());
 // Pour accepter les connexions cross-domain (CORS)
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -42,19 +43,29 @@ app.use(bodyParser.json());
 let port = process.env.PORT || 8010;
 
 const authenticate = (req, res, next) => {
+    
     const authHeader = req.headers.authorization;
+    // console.log("You are here",authHeader);
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Non autorisé, token manquant.' });
     }
-
+    
+    
     const token = authHeader.split(' ')[1];
-
+   
     try {
+        console.log(process.env.JWT_SECRET);
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // console.log(decoded);
+        
         req.user = decoded;
+        
         next();
     } catch (error) {
+        console.log(error);
+        
         res.status(401).json({ message: 'Token invalide.' });
     }
 };
@@ -65,7 +76,7 @@ const prefix = '/api';
 app.route(prefix + '/login')
     .post(user.findUserConnection);
 
-// app.use(authenticate); 
+app.use(authenticate); 
 
 app.route(prefix + '/students')
     .get(student.getAll)
@@ -95,6 +106,9 @@ app.route(prefix + '/grades/:id')
 
 app.route(prefix + '/grades/student/:id')
     .get(grade.getNotes)
+
+app.route(prefix + '/student')
+    .get(student.getStudent)
 // On démarre le serveur
 app.listen(port, "0.0.0.0");
 console.log('Serveur démarré sur http://localhost:' + port);

@@ -45,6 +45,7 @@ function findUserConnection(req, res) {
             res.send(userDto);
         })
         .catch((err) => {
+            
             res.status(500).send({ message: "Erreur serveur", error: err });
         });
     }
