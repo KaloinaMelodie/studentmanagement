@@ -1,8 +1,17 @@
-let {Grade, Student, Course} = require('../model/schemas');
+let {Grade, User} = require('../model/schemas');
 const mongoose=require('mongoose')
 const {ObjectId}=mongoose.Types
-function getAll(req, res) {
-    Grade.find()
+async function getAll(req, res) {
+    let query={}
+    const userconnected=req.user
+    if (userconnected) {
+          const user =await User.findOne({_id:new ObjectId(req.user.userId)}).select('student')
+          
+          if(user.student){
+            query= { student: new ObjectId(user.student) }; 
+          }
+    }
+    Grade.find(query)
         .populate('student')
         .populate('course')
         .then((grades) => {
