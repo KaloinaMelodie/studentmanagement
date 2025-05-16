@@ -73,15 +73,18 @@ const authenticate = (req, res, next) => {
 // les routes
 const prefix = '/api';
 
+app.route(prefix + '/register')
+    .post(user.register);
+
 app.route(prefix + '/login')
     .post(user.findUserConnection);
-
-app.use(authenticate); 
 
 app.route(prefix + '/students')
     .get(student.getAll)
     .post(student.create)
     .delete(student.deleteEtudiant);
+
+app.use(authenticate); 
     
 app.route(prefix + '/students/:id')
     .get(student.getById)
