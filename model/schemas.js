@@ -26,6 +26,7 @@ let Grade = mongoose.model('Grade', gradeSchema);
 let userSchema = Schema({
     student: {type: mongoose.Schema.Types.ObjectId, ref: 'Student'},
     username: String,
+    email:String, 
     password: String,
     role: String
 })
