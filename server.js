@@ -27,14 +27,52 @@ mongoose.connect(uri, options)
         });
 
 
-app.use(cors());
+//app.use(cors());
 // Pour accepter les connexions cross-domain (CORS)
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    // res.header("Access-Control-Allow-Origin", "*");
+    // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     next();
 });
+
+
+// OAuth2Client Google
+const cookieParser = require('cookie-parser');
+const { OAuth2Client } = require('google-auth-library');
+
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+app.use(express.json());
+app.use(cookieParser());
+
+// const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
+// // Route to verify Google token
+// app.post('/api/auth/google', async (req, res) => {
+//   const { token } = req.body;
+
+//   try {
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+//     });
+//     const payload = ticket.getPayload();
+//     const { name, email, picture } = payload;
+
+//     //  Crée le token après avoir extrait les infos
+//     const myToken = jwt.sign({ email, name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+//     //  Envoie le cookie avec le token
+//     res
+//       .cookie('token', myToken, { httpOnly: true })
+//       .status(200)
+//       .json({ name, email, picture });
+
+//   } catch (error) {
+//     res.status(401).json({ error: 'Invalid Google token' });
+//   }
+// });
+
 
 // Pour les formulaires
 app.use(bodyParser.urlencoded({extended: true}));
@@ -72,6 +110,9 @@ const authenticate = (req, res, next) => {
 
 // les routes
 const prefix = '/api';
+
+app.route(prefix +'/auth/google')
+    .post(user.signInWithGoogle);
 
 app.route(prefix + '/register')
     .post(user.register);

@@ -1,6 +1,7 @@
 let { User } = require("../model/schemas");
 
 const jwt = require('jsonwebtoken'); 
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config(); 
 
 function getAll(req, res) {
@@ -11,6 +12,54 @@ function getAll(req, res) {
     .catch((err) => {
       res.send(err);
     });
+}
+
+async function signInWithGoogle(req, res) {
+  const { token } = req.body;
+  const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { name, email, picture } = payload;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const userDto = user.toObject();
+    delete userDto.password;
+
+    console.log("User DTO:", userDto); // <-- affichage dans la console Node.js
+
+    const myToken = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
+
+    userDto.token = myToken;
+
+    console.log("my userdto"+ userDto);
+     res.send(userDto);
+
+    // res
+    //   .cookie('token', myToken, { httpOnly: true })
+    //   .status(200)
+    //   .json({ ...userDto, name, email, picture });
+
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid Google token' });
+  }
 }
 
 function findUserConnection(req, res) {
@@ -83,4 +132,4 @@ async function register(req, res) {
   }
 }
 
-module.exports = { findUserConnection, register };
+module.exports = { findUserConnection, register , signInWithGoogle };
