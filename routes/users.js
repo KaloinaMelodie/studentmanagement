@@ -50,7 +50,7 @@ async function signInWithGoogle(req, res) {
     userDto.token = myToken;
 
     console.log("my userdto"+ userDto);
-     res.send(userDto);
+    res.send(userDto);
 
     // res
     //   .cookie('token', myToken, { httpOnly: true })
