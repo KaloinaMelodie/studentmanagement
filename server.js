@@ -9,6 +9,9 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const morgan = require('morgan');
+app.use(morgan('dev'));
+
 let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 //mongoose.set('debug', true);
@@ -82,6 +85,14 @@ app.route(prefix + '/login')
 app.route(prefix + '/students')
     .get(student.getAll)
     .post(student.create)
+
+app.route(prefix + '/forgetPassword')
+    .post(user.requestPasswordReset);
+
+app.route(prefix + '/resetPassword')
+    .post(user.resetPassword);
+
+app.route(prefix + '/students') .post(student.create)
     .delete(student.deleteEtudiant);
 
 app.use(authenticate); 
